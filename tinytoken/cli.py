@@ -1,4 +1,5 @@
 import sys
+import json
 import argparse
 import logging
 from queue import Empty
@@ -56,4 +57,4 @@ def main():
     # Format message as required in:
     # https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
     credentials['Version'] = 1
-    pprint(credentials)
+    print(json.dumps(credentials, indent=2))
