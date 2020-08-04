@@ -28,8 +28,8 @@ class HTTPCallbackHandler(BaseHTTPRequestHandler):
         sys.exit()
 
 
-def start() -> int:
-    httpd = HTTPServer(('127.0.0.1', 0), HTTPCallbackHandler)
+def start(address, port) -> int:
+    httpd = HTTPServer((address, port), HTTPCallbackHandler)
     logger.info(f'Starting local httpd ({httpd.server_address[0]}:{httpd.server_port})')
     t = Thread(target=httpd.serve_forever, daemon=True)
     t.start()
