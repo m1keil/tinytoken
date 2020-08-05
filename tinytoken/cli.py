@@ -32,7 +32,7 @@ def parse_args():
                         help='User-agent redirect destination. Should be on the loopback interface')
     # Temporary until I figure out how Cognito generates its state
     # parser.add_argument('--no-csrf', action='store_true', help='Disable state verification')
-    parser.add_argument('--output', choices=OutputFormat.__members__, default='JSON', help='Output format')
+    parser.add_argument('--output', choices=OutputFormat.__members__, default='json', help='Output format')
     parser.add_argument('--skip-cache', action='store_true', help='Disable caching to disk')
     parser.add_argument('-v', action='count', default=0, help='Verbosity level. Can be specified multiple times')
 
