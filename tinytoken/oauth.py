@@ -1,15 +1,15 @@
 import logging
 import secrets
 from hashlib import sha256
-from base64 import urlsafe_b64encode
 from functools import partial
 from pprint import pformat
-from urllib.parse import urlparse, parse_qs
+
+from .utils import base64_without_padding
+from .exceptions import TinytokenException
 
 import requests
 
 logger = logging.getLogger(__name__)
-headers = {'User-Agent': 'awscreds/v0.1'}
 
 
 def authorization(*, auth_endpoint, token_endpoint, client_id, redirect_uri):
@@ -37,13 +37,11 @@ def authorization(*, auth_endpoint, token_endpoint, client_id, redirect_uri):
         response = requests.get(
             auth_endpoint,
             params=payload,
-            headers=headers,
             allow_redirects=False
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        logger.error('Authorization request failed', e)
-        raise
+        raise TinytokenException(f'Authorization request failed: {e}')
 
     response_location = response.headers['Location']
     logger.debug(f'Authorization response: {response_location}')
@@ -82,18 +80,11 @@ def exchange(*, token_endpoint, code_verifier, redirect_uri, client_id, code):
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        logger.error(f'Code to token exchange failed unexpectedly: {e}')
-        raise
+        raise TinytokenException(f'Code to token exchange failed unexpectedly: {e}')
 
     logger.debug(f'Exchange response: \n{pformat(response.content.decode("utf-8"))}')
 
-    try:
-        data = response.json()
-    except ValueError:
-        logger.error('Unexpected data format from token endpoint')
-        raise
-
-    return data
+    return response.json()
 
 
 def refresh(*, token_endpoint, client_id, refresh_token):
@@ -114,38 +105,21 @@ def refresh(*, token_endpoint, client_id, refresh_token):
         )
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        logger.error(f'Token refresh failed unexpectedly: {e}')
-        raise
+        raise TinytokenException(f'Token refresh failed unexpectedly: {e}')
 
     logger.debug(f'Refresh response: \n{pformat(response.content.decode("utf-8"))}')
 
-    try:
-        data = response.json()
-    except ValueError:
-        logger.error('Unexpected data format from token endpoint')
-        raise
-
-    return data
+    return response.json()
 
 
 def discovery(url):
     """Returns authorization and token endpoint urls"""
     try:
-        resp = requests.get(url, headers=headers)
+        resp = requests.get(url)
         resp.raise_for_status()
-    except requests.exceptions.RequestException:
-        logger.error('Error while attempting to discover OpenID endpoints')
-        raise
+    except requests.exceptions.RequestException as e:
+        raise TinytokenException(f'Fetching discovery info failed: {e}')
 
-    try:
-        data = resp.json()
-    except ValueError:
-        logger.error('Unexpected data format from discovery endpoint')
-        raise
+    data = resp.json()
 
     return data['authorization_endpoint'], data['token_endpoint']
-
-
-def base64_without_padding(data):
-    # https://tools.ietf.org/html/rfc7636#appendix-A
-    return urlsafe_b64encode(data).decode("utf-8").rstrip("=")

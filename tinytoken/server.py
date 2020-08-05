@@ -16,7 +16,7 @@ class HTTPCallbackHandler(BaseHTTPRequestHandler):
         # disable default access logging
         pass
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         logger.debug(f'Incoming request: {self.requestline}')
         query = parse_qs(urlparse(self.path).query)
         queue.put(query['code'][0])
@@ -28,7 +28,7 @@ class HTTPCallbackHandler(BaseHTTPRequestHandler):
         sys.exit()
 
 
-def start(address, port) -> int:
+def start(address: str, port: int) -> int:
     httpd = HTTPServer((address, port), HTTPCallbackHandler)
     logger.info(f'Starting local httpd ({httpd.server_address[0]}:{httpd.server_port})')
     t = Thread(target=httpd.serve_forever, daemon=True)
