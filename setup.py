@@ -1,8 +1,10 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="tinytoken",
+    version="0.1.0",
     description="Command line tool to enable accessing AWS using federated GSuite single sign on",
-    entry_points={"console_scripts": ["tinytoken=tinytoken.cli:main"]},
+    packages=['tinytoken'],
     install_requires=['requests'],
+    entry_points={"console_scripts": ["tinytoken=tinytoken.cli:entry_point"]},
 )

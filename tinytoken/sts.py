@@ -18,6 +18,7 @@ def get_credentials(id_token, role_arn):
     resp = requests.get(url=STS_ENDPOINT, params=payload)
 
     # Process xml
+    # TODO: handle errors (e.g due to wrong creds)
     root_xml_element = ElementTree.fromstring(resp.content)
     credential_children = root_xml_element.find(
         "./sts:AssumeRoleWithWebIdentityResult/sts:Credentials",
