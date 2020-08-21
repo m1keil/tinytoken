@@ -12,14 +12,26 @@ logger = logging.getLogger(__name__)
 
 
 class HTTPCallbackHandler(BaseHTTPRequestHandler):
+    state = None
+    code = None
+
     def log_message(self, format: str, *args: Any) -> None:
         # disable default access logging
         pass
 
     def do_GET(self) -> None:
+        code = state = None
+
         logger.debug(f'Incoming request: {self.requestline}')
         query = parse_qs(urlparse(self.path).query)
-        queue.put(query['code'][0])
+
+        if 'code' in query:
+            code = query.get('code')[0]
+
+        if 'state' in query:
+            state = query.get('state')[0]
+
+        queue.put((code, state))
         self.send_response(200)
         self.end_headers()
         self.wfile.write(bytes('Processed successfully. Page can be closed', 'utf-8'))
@@ -29,7 +41,9 @@ class HTTPCallbackHandler(BaseHTTPRequestHandler):
 
 
 def start(address: str, port: int) -> int:
-    httpd = HTTPServer((address, port), HTTPCallbackHandler)
+    handler = HTTPCallbackHandler
+    handler.test = 3
+    httpd = HTTPServer((address, port), handler)
     logger.info(f'Starting local httpd ({httpd.server_address[0]}:{httpd.server_port})')
     t = Thread(target=httpd.serve_forever, daemon=True)
     t.start()

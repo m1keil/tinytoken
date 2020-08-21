@@ -58,12 +58,15 @@ def sign_in(discovery_uri, client_id, redirect_uri, user_agent_cmd):
     user_agent.execute(user_agent_cmd, url)
 
     try:
-        code = server.queue.get(timeout=TIMEOUT)
+        code, state = server.queue.get(timeout=TIMEOUT)
     except Empty:
         raise TinytokenException(f"Timed out waiting for user's action ({TIMEOUT}s)")
 
+    if code is None:
+        raise TinytokenException('CODE was not received')
+
     # Exchange authorization code for id token
-    return exchange(code=code)
+    return exchange(code=code, response_state=state)
 
 
 def refresh(discovery_uri, client_id, refresh_token):
