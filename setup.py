@@ -1,18 +1,14 @@
+import sys
+
+from pkg_resources import VersionConflict, require
 from setuptools import setup
 
-setup(
-    name="tinytoken",
-    version="0.1.0",
-    description="Command line tool to enable accessing AWS using federated GSuite single sign on",
-    python_requires=">=3.6",
-    packages=['tinytoken'],
-    install_requires=['requests~=2.24'],
-    extras_require={
-        'dev': [
-            'mypy',
-            'pylint',
-            'black',
-        ]
-    },
-    entry_points={"console_scripts": ["tinytoken=tinytoken.cli:entry_point"]},
-)
+try:
+    require('setuptools>=38.3')
+except VersionConflict:
+    print("Error: version of setuptools is too old (<38.3)!")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    setup(use_pyscaffold=True)

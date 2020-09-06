@@ -8,6 +8,7 @@ import logging
 from queue import Empty
 
 from . import server, oauth, user_agent, cache, jwt, utils, profile, BASE
+from . import __version__
 from .oauth import Tokens
 from .output import output, OutputFormat
 from .exceptions import TinytokenException, RefreshTokenExpired
@@ -58,6 +59,9 @@ def parse_args():
         action="count",
         default=0,
         help="Output verbosity level. Can be specified multiple times",
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"tinytoken {__version__}"
     )
     parser.add_argument(
         "--help", "-h", action="store_true", help="Display this message"

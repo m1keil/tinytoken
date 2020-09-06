@@ -10,10 +10,8 @@ Dependencies:
 
 ## Installation
 
-Installation in virtualenv is recommended:
+```
+$ pip install tinytoken
+```
 
-```
-$ python3 -m venv venv
-$ . venv/bin/activate
-$ pip install git+https://github.com/m1keil/tinytoken
-```
+

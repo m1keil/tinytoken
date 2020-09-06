@@ -1,0 +1,49 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.3.2
+
+jobs:
+  build:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache
+      - run:
+          name: install
+          command: python setup.py install
+      - python/save-cache
+      - python/dist
+      - persist_to_workspace:
+          root: dist/
+          paths:
+            - "*.tar.gz"
+            - "*.whl"
+  release:
+    executor: python/default
+    steps:
+      - checkout
+      - run:
+          name: Install twine
+          command: pip install twine
+      - attach_workspace:
+          at: dist/
+      - run:
+          name: Upload to pypi
+          command: twine upload dist/*
+
+workflows:
+  main:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
