@@ -1,22 +1,22 @@
 import json
 from enum import Enum, auto
 
+from . import profile, oauth
+
 
 class OutputFormat(Enum):
     json = auto()
     shell = auto()
+    config = auto()
 
 
-def output(fmt: OutputFormat, tokens: dict) -> None:
-    data = {
-        'access_token': tokens['access_token'],
-        'id_token': tokens['id_token']
-    }
-
+def output(fmt: OutputFormat, tokens: oauth.Tokens, **kwargs: dict) -> None:
     if fmt == OutputFormat.json:
-        print(json.dumps(data, indent=4))
+        print(json.dumps(tokens._asdict(), indent=4))
     elif fmt == OutputFormat.shell:
-        print(f"export ACCESS_TOKEN={tokens['access_token']}")
-        print(f"export ID_TOKEN={tokens['id_token']}")
+        print(f"export ACCESS_TOKEN={tokens.access_token}")
+        print(f"export ID_TOKEN={tokens.id_token}")
+    elif fmt == OutputFormat.config:
+        profile.set_credentials(profile_name=kwargs.get("profile"), credentials=tokens)
     else:
-        raise ValueError(f'Output format {format} not implemented')
+        raise ValueError(f"Output format {format} not implemented")

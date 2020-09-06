@@ -13,19 +13,19 @@ def expired(jwt: str) -> bool:
 
     Returns True if expired, false otherwise.
     """
-    if jwt.count('.') != 2:
-        raise ValueError('Not valid JWT token')
+    if jwt.count(".") != 2:
+        raise ValueError("Not a valid JWT token")
 
-    header, payload, signature = jwt.split('.')
+    header, payload, signature = jwt.split(".")
 
     # python will throw padding error if padding is missing,
     # but will be totally OK with any extra padding.
-    payload = base64.urlsafe_b64decode(payload + '===')
-    payload = json.loads(payload)
+    payload_bytes = base64.urlsafe_b64decode(payload + "===")
+    payload_dict = json.loads(payload_bytes)
 
-    if 'exp' not in payload:
-        raise ValueError('Token contains no "exp" key')
-    exp = int(payload['exp'])
+    if "exp" not in payload_dict:
+        raise ValueError('JWT contains no "exp" key')
+    exp = int(payload_dict["exp"])
     now = int(time.time())
 
     return now > exp - CLOCK_SKEW * 60
