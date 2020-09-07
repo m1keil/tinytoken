@@ -68,12 +68,15 @@ def get_credentials(profile_name: str) -> Tokens:
     return credentials
 
 
-def set_credentials(profile_name, credentials: Tokens) -> None:
+def set_credentials(profile_name: str, credentials: Tokens) -> None:
     path = BASE / "credentials"
-    _save(path, profile_name, credentials._asdict())
+    # filter out None
+    data = {k: v for k, v in credentials._asdict().items() if v is not None}
+
+    _save(path, profile_name, data)
 
 
-def get_profile(profile_name) -> Profile:
+def get_profile(profile_name: str) -> Profile:
     path = BASE / "config"
     try:
         data = _load(path, profile_name)
