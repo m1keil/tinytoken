@@ -49,7 +49,7 @@ def _save(path: Path, section: str, data: Dict[str, str]) -> None:
         config.write(fh)
 
 
-def get_credentails(profile_name: str) -> Tokens:
+def get_credentials(profile_name: str) -> Tokens:
     path = BASE / "credentials"
     try:
         data = _load(path, profile_name)
