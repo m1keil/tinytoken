@@ -13,7 +13,8 @@ def store(client_id: str, tokens: Tokens) -> None:
     # Store tokens
     cache.touch(0o600, exist_ok=True)
     with cache.open("w") as fh:
-        json.dump(tokens._asdict(), fh)
+        temp = {k: v for k, v in tokens._asdict().items() if v is not None}
+        json.dump(temp, fh)
 
 
 def exists(client_id: str) -> bool:
